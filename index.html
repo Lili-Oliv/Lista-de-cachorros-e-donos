@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Cachorros</title>
+  <style>
+    /* Seus estilos CSS */
+   
+    tbody tr:nth-child(odd) {
+        background-color: white;
+      }
+      tbody tr:nth-child(even) {
+        background-color: rgb(246, 235, 243);
+      }
+      body {
+        background-image: url(https://img.freepik.com/vetores-gratis/impressao-de-pata-de-cao-ou-gato-com-design-de-padrao-de-coracao_1017-36752.jpg);
+      }
+      h1 {
+        text-align: center;
+        background-color: rgb(186, 24, 143);
+        background-size: cover;
+        padding: 20px;
+        color: rgb(242, 240, 242);
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+      }
+      
+
+      form {
+        background-color: rgb(246, 235, 243);
+        border: 1px solid rgb(243, 130, 203);
+        padding: 10px;
+        margin: 30px;
+        margin-left: 0px;
+        font-size: 20px;
+      }
+      table{
+        border: 6px solid rgb(255, 0, 170);
+        background-color: rgb(244, 200, 234);
+        font-size: 20px;
+        width: 90%; 
+        vertical-align: top;
+        
+      }
+      button {
+      padding: 6px 10px;
+      margin: 2px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      background-color: rgba(190, 20, 111);
+      color: white;
+    }
+    .add-dog-btn {
+      padding: 20px 70px;
+      margin: 2px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 23px;
+      background-color: rgba(186, 24, 143);
+      color: white;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+    button[type="submit"] {
+      background-color: rgba(186, 24, 143);
+      color: white;
+      font-size: 20px;
+    }
+    .edit-btn {
+      background-color: rgb(186, 24, 143);
+      color: rgb(240, 233, 233);
+    }
+    .delete-btn {
+      background-color: rgb(186, 24, 143);
+      color: white;
+    }
+    .imagem-estilizada {
+      display: block;
+      margin: 0 auto;
+      width: 1000px;
+     
+      
+     
+}
+
+
+
+
+  </style>
+</head>
+<body>
+  <h1>Lista de Cachorros e Donos</h1>
+  
+  <button class="add-dog-btn" onclick="exibirFormulario()">Adicionar um cachorro</button>
+
+  <br />
+  <form id="formulario" onsubmit="salvarCachorro(event)" style="display: none;">
+    <label>Cachorro</label>
+    <input id="dogName" name="cachorro" type="text" required />
+    <br />
+
+    <label>Dono</label>
+    <input id="ownerName" name="dono" type="text" required />
+    <br />
+
+    <label>Telefone</label>
+    <input id="phone" name="telefone" type="tel" required />
+    <br />
+
+    <label>Email</label>
+    <input id="email" name="email" type="email" required />
+    <br />
+
+    <label>Imagem(Adicione um número)</label>
+    <input id="photo" name="imagem" type="text" required />
+    <br />
+    <button type="submit">Salvar</button>
+  </form>
+  
+  <table border="3">
+    <thead>
+      <tr>
+        <th>Imagem</th>
+        <th>Cachorro</th>
+        <th>Dono</th>
+        <th>Telefone</th>
+        <th>Email</th>
+        <th>Ações</th>
+      </tr>
+     
+    </thead>
+    <tbody id="dogsTableBody"></tbody>
+  </table>
+  <img src="https://guairaimoveis.com.br/blog/wp-content/uploads/2017/08/170408-espaco-para-cachorros.png" alt="Descrição da imagem" class="imagem-estilizada">
+
+  <script>
+    let dogs = JSON.parse(localStorage.getItem("dogs")) || [];
+    let editingDogId = null;
+
+    function exibirFormulario() {
+      document.getElementById("formulario").style.display = "block";
+    }
+
+    function ocultarFormulario() {
+      document.getElementById("formulario").style.display = "none";
+      document.getElementById("formulario").reset();
+      editingDogId = null;
+    }
+
+    function renderDogs() {
+      const tableBody = document.getElementById("dogsTableBody");
+      tableBody.innerHTML = "";
+
+      dogs.forEach((dog) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><img src="https://placedog.net/100/100?random=${dog.photo}" alt="Dog Photo" width="50"></td>
+          <td>${dog.name}</td>
+          <td>${dog.owner}</td>
+          <td>${dog.phone}</td>
+          <td>${dog.email}</td>
+          <td>
+            <button onclick="editDog(${dog.id})">Editar</button>
+            <button onclick="deleteDog(${dog.id})">Excluir</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function salvarCachorro(event) {
+      event.preventDefault();
+      const name = document.getElementById("dogName").value;
+      const owner = document.getElementById("ownerName").value;
+      const phone = document.getElementById("phone").value;
+      const email = document.getElementById("email").value;
+      const photo = document.getElementById("photo").value;
+
+      if (editingDogId) {
+        const dog = dogs.find(d => d.id === editingDogId);
+        dog.name = name;
+        dog.owner = owner;
+        dog.phone = phone;
+        dog.email = email;
+        dog.photo = photo;
+      } else {
+        const newDog = { id: Date.now(), name, owner, phone, email, photo };
+        dogs.push(newDog);
+      }
+
+      localStorage.setItem("dogs", JSON.stringify(dogs));
+      renderDogs();
+      ocultarFormulario();
+    }
+
+    function editDog(id) {
+      const dog = dogs.find(d => d.id === id);
+      document.getElementById("dogName").value = dog.name;
+      document.getElementById("ownerName").value = dog.owner;
+      document.getElementById("phone").value = dog.phone;
+      document.getElementById("email").value = dog.email;
+      document.getElementById("photo").value = dog.photo;
+      editingDogId = id;
+      exibirFormulario();
+    }
+
+    function deleteDog(id) {
+      dogs = dogs.filter(dog => dog.id !== id);
+      localStorage.setItem("dogs", JSON.stringify(dogs));
+      renderDogs();
+    }
+
+    renderDogs();
+  </script>
+</body>
+</html>
